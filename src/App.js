@@ -1,24 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
+import React,{ useState } from 'react';
 import './App.css';
+const api = {
+  key: '4dd23b28fb57078c0d5ec9c653e203b2',
+  url:'https://api.openweathermap.org/data/2.5/weather'
+}
 
 function App() {
+
+  const [weather, setWeather] = useState([]);
+  const [query, setQuery] = useState('');
+
+  const search = (e) => {
+    if(e.key === 'Enter'){
+      fetch(`${api.url}?q=${query}&units=metric&appid=${api.key}`)
+      .then(res => res.json())
+      .then((response) => {
+        setWeather(response)
+        console.log(weather)
+        setQuery('')
+      })
+    }
+  }
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={(typeof weather.main !== 'undefined')? ((weather.main.temp > 16)? 'App warm': 'App'):
+     "App"}>
+      <main>
+        <div className='search-box'>
+          <input 
+            type='text' 
+            className='search-input' 
+            placeholder='Search for place...' 
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyPress={search}
+          />
+        </div> 
+        {weather.main !== undefined ?
+           <div>
+        <div className='location-box'>
+        <div className='location'>{weather.name},{weather.sys.country}</div>
+        </div>
+        <div className='weather-box'>
+          <div className='temp'>{Math.round(weather.main.temp)}°c</div>
+          <div className='weather'>{weather.weather[0].main}</div>
+        </div>
+        </div>
+        : ''}
+
+      </main>
     </div>
   );
 }
